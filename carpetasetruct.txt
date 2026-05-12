@@ -1,0 +1,35 @@
+edificio-mantenimiento/
+├── public/
+├── src/
+│   ├── components/
+│   │   ├── ui/
+│   │   │   ├── Button.jsx
+│   │   │   ├── Input.jsx
+│   │   │   ├── Select.jsx
+│   │   │   └── Card.jsx
+│   │   ├── Dashboard.jsx
+│   │   ├── RegistroDepartamento.jsx
+│   │   ├── ReciboGeneral.jsx
+│   │   ├── VistaAdministrador.jsx
+│   │   └── TablaResultados.jsx
+│   ├── hooks/
+│   │   ├── useCalculoMes.js
+│   │   ├── useFirestore.js
+│   │   └── useMesActual.js
+│   ├── utils/
+│   │   ├── calculosMantenimiento.js
+│   │   ├── redondeoEspecial.js
+│   │   └── generarPDF.js
+│   ├── services/
+│   │   └── firebase.js
+│   ├── constants/
+│   │   └── departamentos.js
+│   ├── App.jsx
+│   └── main.jsx
+├── .env.local
+├── .env.example
+├── .gitignore
+├── package.json
+├── vite.config.js
+├── tailwind.config.js
+└── index.html
