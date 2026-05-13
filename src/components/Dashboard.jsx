@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'; 
-import { Users, Receipt, ClipboardCheck } from 'lucide-react'; // Quité Download de aquí porque ya no se usa en este archivo
+import { Users, Receipt, ClipboardCheck } from 'lucide-react'; 
 import { useMesActual } from '../hooks/useMesActual';
 import { useFirestore } from '../hooks/useFirestore';
 import { useCalculoMes } from '../hooks/useCalculoMes';
@@ -7,11 +7,14 @@ import { RegistroDepartamento } from './RegistroDepartamento';
 import { ReciboGeneral } from './ReciboGeneral';
 import { VistaAdministrador } from './VistaAdministrador';
 import { Navbar } from './Navbar'; 
-import { Historial } from './Historial'; // <-- Nuevo import
+import { Historial } from './Historial'; 
 import { Card } from './ui/Card';
 import { Button } from './ui/Button';
 import { TablaResultados } from './TablaResultados';
 import { generarPDF } from '../utils/generarPDF';
+
+// ---> NUEVO: Importamos el modal de login que creaste
+import { LoginModal } from './LoginModal'; 
 
 export const Dashboard = () => {
   const mesId = useMesActual();
@@ -28,6 +31,9 @@ export const Dashboard = () => {
   const [mostrarAdmin, setMostrarAdmin] = useState(false);
   const [historial, setHistorial] = useState([]);
   const [mostrarHistorial, setMostrarHistorial] = useState(false);
+
+  // ---> NUEVO: Estado para controlar si el modal de la contraseña está visible o no
+  const [isLoginOpen, setIsLoginOpen] = useState(false);
 
   useEffect(() => {
     if (resultados && Object.keys(resultados).length > 0) {
@@ -50,6 +56,24 @@ export const Dashboard = () => {
     setMostrarAdmin(false); 
   };
 
+  // ---> NUEVO: Función que intercepta el clic en el Navbar (Escudo)
+  const manejarClickEscudo = (intentarAbrir) => {
+    // Si intentan abrir el modo admin y no está abierto aún, mostramos el modal
+    if (intentarAbrir && !mostrarAdmin) {
+      setIsLoginOpen(true);
+    } else {
+      // Si ya estaba abierto, simplemente lo cerramos (como un logout rápido)
+      setMostrarAdmin(false);
+    }
+    setMostrarHistorial(false); // Cerramos el historial por si acaso
+  };
+
+  // ---> NUEVO: Función que se ejecuta cuando la contraseña es correcta en el Modal
+  const confirmarLogin = () => {
+    setIsLoginOpen(false); // Cerramos el cuadrito
+    setMostrarAdmin(true); // ¡Activamos la vista de administrador real!
+  };
+
   const nombreMes = mesId ? new Date(mesId + '-01').toLocaleDateString('es-PE', {
     month: 'long', year: 'numeric'
   }) : '';
@@ -65,24 +89,28 @@ export const Dashboard = () => {
       <Navbar 
         nombreMes={nombreMes}
         mostrarAdmin={mostrarAdmin}
-        setMostrarAdmin={(val) => {
-          setMostrarAdmin(val);
-          setMostrarHistorial(false);
-        }}
+        // ---> MODIFICADO: Ahora pasamos nuestra nueva función para que pida clave primero
+        setMostrarAdmin={manejarClickEscudo} 
         mostrarHistorial={mostrarHistorial}
         onVerHistorial={manejarVerHistorial}
         onVolverInicio={manejarVolverInicio}
       />
       
       <main className="max-w-4xl mx-auto px-4 py-2">
-        {/* Usamos el componente modular: No cambia nada visualmente */}
         
-          {mostrarHistorial && (
-            <Historial 
-              historial={historial} 
-              onClose={() => setMostrarHistorial(false)} // <--- ESTA LÍNEA CONECTA EL BOTÓN
-            />
-          )}
+        {/* ---> NUEVO: Agregamos el componente Modal justo aquí al inicio del main */}
+        <LoginModal 
+          isOpen={isLoginOpen} 
+          onClose={() => setIsLoginOpen(false)} 
+          onConfirm={confirmarLogin} 
+        />
+
+        {mostrarHistorial && (
+          <Historial 
+            historial={historial} 
+            onClose={() => setMostrarHistorial(false)} 
+          />
+        )}
 
         {error && (
           <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg text-sm text-red-800">
