@@ -63,7 +63,9 @@ export const TablaResultados = ({ resultados }) => {
       <div className="m-4 p-4 bg-orange-50 border border-orange-100 rounded-lg">
         <div className="flex justify-between items-center">
           <div>
-            <span className="font-semibold text-orange-900 block">Saldo a favor de Caja:</span>
+            <span className="font-semibold text-orange-900 block">
+    Límite de pago 16 de Mayo<span className="text-blue-700 ml-1"> — Saldo a favor de Caja:</span>
+</span>
             <span className="text-xs text-orange-700">Gasto real: S/ {resultados.totalServicios ? resultados.totalServicios.toFixed(2) : '0.00'}</span>
           </div>
           <span className="text-xl font-bold text-orange-600">
