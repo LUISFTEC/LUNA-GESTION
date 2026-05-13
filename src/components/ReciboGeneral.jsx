@@ -8,8 +8,11 @@ import { Button } from './ui/Button';
 const autoFormatearMonto = (valor, maxEnteros) => {
   if (valor === '') return '';
 
-  // Quitamos cualquier letra o símbolo (solo dejamos números y el punto)
-  let limpio = valor.replace(/[^0-9.]/g, '');
+  // 👇 ¡ESTO ES LO ÚNICO QUE TE FALTÓ AGREGAR AQUÍ! 👇
+  let valorConPunto = valor.replace(',', '.');
+
+  // 👇 Y AQUÍ CAMBIAR "valor" por "valorConPunto" 👇
+  let limpio = valorConPunto.replace(/[^0-9.]/g, '');
   
   // Evitar que pongan dos puntos (ej: 12.3.4)
   const partes = limpio.split('.');
@@ -35,6 +38,13 @@ const autoFormatearMonto = (valor, maxEnteros) => {
 
   return enteros;
 };
+
+
+
+
+
+
+
 
 export const ReciboGeneral = ({ 
   registros,
@@ -117,8 +127,9 @@ export const ReciboGeneral = ({
           <div className="space-y-3">
             <Input
               label="Monto del recibo de agua (S/)"
-              type="text"
-              inputMode="decimal"
+              type="number"
+              inputMode="decimal"     
+              step="0.01"             // ✅ PERMITE DECIMALES         
               value={montoAgua}
               // REGLA: Límite de 3 enteros
               onChange={(e) => setMontoAgua(autoFormatearMonto(e.target.value, 3))}
@@ -172,8 +183,9 @@ export const ReciboGeneral = ({
           <div className="space-y-3">
             <Input
               label="Monto del recibo de luz (S/)"
-              type="text"
-              inputMode="decimal"
+              type="number"
+              inputMode="decimal"   
+              step="0.01"             // ✅ PERMITE DECIMALES           
               value={montoLuz}
               // REGLA: Límite de 2 enteros
               onChange={(e) => setMontoLuz(autoFormatearMonto(e.target.value, 2))}
@@ -227,8 +239,9 @@ export const ReciboGeneral = ({
           <div className="space-y-3">
             <Input
               label="Monto del recibo de limpieza (S/)"
-              type="text"
-              inputMode="decimal"
+              type="number"
+              inputMode="decimal" 
+              step="0.01"             // ✅ PERMITE DECIMALES           
               value={montoLimpieza}
               // REGLA: Límite de 3 enteros
               onChange={(e) => setMontoLimpieza(autoFormatearMonto(e.target.value, 3))}
