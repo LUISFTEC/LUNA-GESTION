@@ -162,7 +162,7 @@ export const generarPDF = (datos, mesId) => {
   
   doc.setFontSize(11);
   doc.setFont(undefined, 'bold');
-  doc.text('Saldo a favor de Caja:', margin + 5, finalY + 6);
+  doc.text('(Límite D PAGO 16 de Mayo) Saldo a favor de Caja:', margin + 5, finalY + 6);
   
   doc.setFontSize(12);
   doc.text(`S/ ${f(res.cajaChica)}`, pageWidth - margin - 5, finalY + 6, { align: 'right' });
