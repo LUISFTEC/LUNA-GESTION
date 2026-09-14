@@ -28,7 +28,7 @@ export const RegistroDepartamento = ({
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (yaTieneRegistro) return;
-    if (!dptoSeleccionado || !habitantesInput) return;
+    if (!dptoSeleccionado || habitantesInput === '') return; // '0' es válido
     
     const exito = await onGuardar(dptoSeleccionado, habitantesInput);
     
@@ -84,7 +84,7 @@ export const RegistroDepartamento = ({
                   setHabitantesInput(e.target.value);
                 }
               }}
-              min="1"
+              min="0"
               step="1"
               placeholder="Ej: 3"
               disabled={disabled || loading || yaTieneRegistro}
@@ -102,7 +102,7 @@ export const RegistroDepartamento = ({
             
             <Button
               type="submit"
-              disabled={disabled || loading || !habitantesInput || yaTieneRegistro}
+              disabled={disabled || loading || habitantesInput === '' || yaTieneRegistro}
               className="w-full flex items-center justify-center gap-2"
             >
               <Save className="w-4 h-4" />

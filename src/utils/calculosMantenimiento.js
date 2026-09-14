@@ -13,7 +13,7 @@ const TODOS_LOS_DEPARTAMENTOS = [
  */
 export const calcularCostoPorPersona = (agua, luz, totalHabitantes) => {
   if (totalHabitantes === 0) return 0;
-  return formatearDecimales((agua + luz) / totalHabitantes);
+  return (agua + luz) / totalHabitantes;
 };
 
 /**
@@ -21,7 +21,7 @@ export const calcularCostoPorPersona = (agua, luz, totalHabitantes) => {
  */
 export const calcularCostoFijoLimpieza = (limpieza, cantidadDptos) => {
   if (cantidadDptos === 0) return 0;
-  return formatearDecimales(limpieza / cantidadDptos); 
+  return limpieza / cantidadDptos; 
 };
 
 /**
@@ -48,44 +48,78 @@ export const calcularResultadosMes = (datosMes, departamentosRegistrados) => {
   const totalDptos = dptosCompletos.length;
   const totalServicios = agua + luz + limpieza;
   
-  // 3. Costos unitarios
+  // 3. Costos unitarios exactos (sin redondear para evitar errores compuestos)
   const costoPorPersona = calcularCostoPorPersona(agua, luz, totalHabitantes);
   const costoFijoLimpieza = calcularCostoFijoLimpieza(limpieza, totalDptos);
   
   // 4. Calcular montos por departamento con TU REGLA
   const departamentosConMontos = dptosCompletos.map(dpto => {
-    const costoAguaLuzDpto = formatearDecimales(costoPorPersona * dpto.habitantes);
-    const montoExacto = formatearDecimales(costoAguaLuzDpto + costoFijoLimpieza);
+    const costoAguaLuzDpto = costoPorPersona * dpto.habitantes;
+    const montoExacto = costoAguaLuzDpto + costoFijoLimpieza;
     
-    // *** CAMBIO CLAVE AQUÍ: Le pasamos los habitantes para que sepa cómo redondear ***
+    // Aplicar redondeo especial visualmente
     const montoRedondeado = redondeoEspecial(montoExacto, dpto.habitantes);
     
     return {
       numero: dpto.numero,
       habitantes: dpto.habitantes,
-      costoAguaLuz: costoAguaLuzDpto,
-      costoLimpieza: costoFijoLimpieza,
-      montoExacto,
+      costoAguaLuz: formatearDecimales(costoAguaLuzDpto),
+      costoLimpieza: formatearDecimales(costoFijoLimpieza),
+      montoExacto: formatearDecimales(montoExacto),
       montoRedondeado,
       diferencia: formatearDecimales(montoRedondeado - montoExacto)
     };
   });
   
-  // 5. Sumar los totales a recaudar (Basado en el redondeo)
-  const totalRedondeado = formatearDecimales(
+  // 5. Suma de montos redondeados visuales
+  const sumaRedondeados = formatearDecimales(
     departamentosConMontos.reduce((sum, d) => sum + d.montoRedondeado, 0)
   );
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // 6. AJUSTE DE RESIDUO
+  //    Si la suma de cuotas redondeadas < totalServicios (déficit), el faltante
+  //    se añade al departamento con más habitantes (mayor consumo proporcional).
+  //    Regla de negocio: cajaChica NUNCA puede ser negativa.
+  // ─────────────────────────────────────────────────────────────────────────
+  const residuo = formatearDecimales(totalServicios - sumaRedondeados);
+
+  // Buscamos el índice del departamento con MÁS habitantes (> 0) para el ajuste.
+  // Nunca asignamos el residuo a un dpto vacío (hab=0).
+  const idxMayorConsumo = departamentosConMontos.reduce(
+    (maxIdx, dpto, idx, arr) => {
+      if (dpto.habitantes === 0) return maxIdx; // ignorar dptos vacíos
+      return dpto.habitantes > arr[maxIdx].habitantes ? idx : maxIdx;
+    },
+    departamentosConMontos.findIndex(d => d.habitantes > 0) // primer dpto no vacío como base
+  );
+
+  // Aplicamos el ajuste con map() para evitar mutar el array original.
+  // idxMayorConsumo será -1 si TODOS los dptos tienen 0 hab (no hay a quien ajustar).
+  const departamentosAjustados = departamentosConMontos.map((dpto, idx) => {
+    if (residuo <= 0 || idxMayorConsumo < 0 || idx !== idxMayorConsumo) return dpto;
+    const nuevoMonto = formatearDecimales(dpto.montoRedondeado + residuo);
+    return {
+      ...dpto,
+      montoRedondeado: nuevoMonto,
+      diferencia: formatearDecimales(nuevoMonto - dpto.montoExacto)
+    };
+  });
+
+  // 7. Sumar los totales a recaudar (con el ajuste de residuo aplicado)
+  const totalRedondeado = formatearDecimales(
+    departamentosAjustados.reduce((sum, d) => sum + d.montoRedondeado, 0)
+  );
   
-  // 6. Calcular Caja Chica (Total que entra - Gasto real)
-  // Al redondear hacia arriba para los de 1 persona, este número dejará de ser rojo
+  // 8. Calcular Caja Chica (Total que entra - Gasto real), garantizando >= 0
   const cajaChica = formatearDecimales(totalRedondeado - totalServicios);
   
   return {
-    costoPorPersona,
-    costoFijoLimpieza,
+    costoPorPersona: formatearDecimales(costoPorPersona),
+    costoFijoLimpieza: formatearDecimales(costoFijoLimpieza),
     totalHabitantes,
     totalDptos,
-    departamentos: departamentosConMontos,
+    departamentos: departamentosAjustados,
     totalRedondeado,
     cajaChica,
     totalServicios,

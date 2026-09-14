@@ -1,6 +1,10 @@
 import { Card } from './ui/Card';
 
-export const TablaResultados = ({ resultados }) => {
+export const TablaResultados = ({ resultados, mesId }) => {
+  // Derivar el mes del mesId ("2026-05" → "mayo") — nunca usar new Date() para no sobreescribir el historial
+  const mesNombre = mesId
+    ? new Date(mesId + '-02').toLocaleDateString('es-PE', { month: 'long' })
+    : new Date().toLocaleDateString('es-PE', { month: 'long' });
   if (!resultados || !resultados.departamentos || resultados.departamentos.length === 0) {
     return (
       <Card>
@@ -12,7 +16,7 @@ export const TablaResultados = ({ resultados }) => {
   }
   
   return (
-    <Card className="overflow-x-auto p-0 overflow-hidden border border-gray-200 shadow-sm">
+    <Card id="tabla-resultados" className="overflow-x-auto p-0 overflow-hidden border border-gray-200 shadow-sm">
       <table className="w-full text-sm border-collapse">
         <thead>
           {/* Encabezado limpio y suave (Gris clarito) */}
@@ -41,7 +45,7 @@ export const TablaResultados = ({ resultados }) => {
               </td>
               {/* La columna del total tiene un fondito celeste casi transparente para resaltar */}
               <td className="py-3 px-2 text-center font-bold text-blue-700 bg-blue-50/50">
-                S/ {dpto.montoRedondeado}
+                S/ {typeof dpto.montoRedondeado === 'number' ? dpto.montoRedondeado.toFixed(2) : '0.00'}
               </td>
             </tr>
           ))}
@@ -53,7 +57,7 @@ export const TablaResultados = ({ resultados }) => {
             <td className="py-3 px-2 text-center">{resultados.totalHabitantes}</td>
             <td colSpan="2" className="py-3 px-2 text-right pr-4 text-slate-600">TOTAL RECAUDADO:</td>
             <td className="py-3 px-2 text-center text-blue-700 text-base">
-              S/ {resultados.totalRedondeado}
+              S/ {resultados.totalRedondeado ? Number(resultados.totalRedondeado).toFixed(2) : '0.00'}
             </td>
           </tr>
         </tfoot>
@@ -63,7 +67,9 @@ export const TablaResultados = ({ resultados }) => {
       <div className="m-4 p-4 bg-orange-50 border border-orange-100 rounded-lg">
         <div className="flex justify-between items-center">
           <div>
-            <span className="font-semibold text-orange-900 block">(Límite D PAGO 16 de Mayo)Saldo a favor de Caja:</span>
+            <span className="font-semibold text-orange-900 block">
+              Límite de PAGO: 16 de {mesNombre} — Saldo a favor de Caja:
+            </span>
             <span className="text-xs text-orange-700">Gasto real: S/ {resultados.totalServicios ? resultados.totalServicios.toFixed(2) : '0.00'}</span>
           </div>
           <span className="text-xl font-bold text-orange-600">

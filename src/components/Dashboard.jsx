@@ -12,6 +12,8 @@ import { Card } from './ui/Card';
 import { Button } from './ui/Button';
 import { TablaResultados } from './TablaResultados';
 import { generarPDF } from '../utils/generarPDF';
+import { generarImagen } from '../utils/generarImagen';
+import { ImageDown } from 'lucide-react';
 
 // ---> NUEVO: Importamos el modal de login que creaste
 import { LoginModal } from './LoginModal'; 
@@ -163,10 +165,23 @@ export const Dashboard = () => {
                       <p>Costo fijo limpieza: <span className="font-semibold">S/ {resultados.costoFijoLimpieza?.toFixed(2)}</span></p>
                     </div>
                   </Card>
-                  <TablaResultados resultados={resultados} />
-                  <Button onClick={() => generarPDF({ totalAgua: Number(datosMes?.recibos?.agua?.monto || 0), totalLuz: Number(datosMes?.recibos?.luz?.monto || 0), totalLimpieza: Number(datosMes?.recibos?.limpieza?.monto || 0), resultados }, mesId)} variant="primary" className="w-full flex items-center justify-center gap-2">
-                    <ClipboardCheck className="w-4 h-4" /> Descargar PDF
-                  </Button>
+                  <TablaResultados resultados={resultados} mesId={mesId} />
+                  <div className="flex gap-2">
+                    <Button
+                      onClick={() => generarPDF({ totalAgua: Number(datosMes?.recibos?.agua?.monto || 0), totalLuz: Number(datosMes?.recibos?.luz?.monto || 0), totalLimpieza: Number(datosMes?.recibos?.limpieza?.monto || 0), resultados }, mesId)}
+                      variant="primary"
+                      className="flex-1 flex items-center justify-center gap-2"
+                    >
+                      <ClipboardCheck className="w-4 h-4" /> Descargar PDF
+                    </Button>
+                    <Button
+                      onClick={() => generarImagen(mesId)}
+                      variant="secondary"
+                      className="flex-1 flex items-center justify-center gap-2"
+                    >
+                      <ImageDown className="w-4 h-4" /> Descargar IMG
+                    </Button>
+                  </div>
                 </div>
               )}
             </div>

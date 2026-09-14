@@ -25,34 +25,36 @@ export const Historial = ({ historial, onClose }) => {
           <p className="text-center py-4 text-xs text-gray-500">No hay registros guardados.</p>
         ) : (
           historial.map((mes) => {
-            // Convertimos "2026-05" en "Mayo 2026" para que se vea mejor
             const fechaLegible = new Date(mes.id + '-02').toLocaleDateString('es-PE', { 
               month: 'long', 
               year: 'numeric' 
             });
+            // Datos del mes para pasar a generarPDF y generarImagen
+            const datosMes = {
+              totalAgua: mes.totalAgua || 0,
+              totalLuz: mes.totalLuz || 0,
+              totalLimpieza: mes.totalLimpieza || 0,
+              resultados: mes
+            };
 
             return (
               <div 
                 key={mes.id} 
-                className="flex items-center justify-between p-2 border border-gray-100 rounded-lg hover:bg-blue-50 transition-all"
+                className="flex items-center justify-between gap-2 p-2 border border-gray-100 rounded-lg hover:bg-blue-50 transition-all"
               >
-                <span className="font-bold text-gray-700 text-xs uppercase">
+                <span className="font-bold text-gray-700 text-xs uppercase flex-1">
                   {fechaLegible}
                 </span>
                 
-                {/* Botón corregido: Horizontal y con buen espacio */}
-                <Button 
-                  onClick={() => generarPDF({ 
-                    totalAgua: mes.totalAgua || 0, 
-                    totalLuz: mes.totalLuz || 0, 
-                    totalLimpieza: mes.totalLimpieza || 0, 
-                    resultados: mes 
-                  }, mes.id)}
-                  className="h-8 px-4 text-[10px] bg-blue-600 hover:bg-blue-700 flex items-center gap-2 shadow-sm"
-                >
-                  <Download className="w-3.5 h-3.5" /> 
-                  <span>DESCARGAR PDF</span>
-                </Button>
+                <div className="flex gap-1">
+                  <Button 
+                    onClick={() => generarPDF(datosMes, mes.id)}
+                    className="h-8 px-4 text-[10px] bg-blue-600 hover:bg-blue-700 flex items-center gap-2 shadow-sm"
+                  >
+                    <Download className="w-3.5 h-3.5" /> 
+                    <span>DESCARGAR PDF</span>
+                  </Button>
+                </div>
               </div>
             );
           })
